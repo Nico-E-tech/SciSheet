@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cheat Sheet Ai</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- MathJax-Bibliothek für LaTeX einbinden -->
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+    <div id="main-container">
+        <!-- Container für den PDF-Viewer (links) -->
+        <div id="container-pdf">
+            <!-- PDF-Viewer mit Objekt -->
+            <object data="G:/Meine Ablage/Studium/5. Semester/HF1/hf1_ws20242025_20sep2024_all_printed.pdf" type="application/pdf">
+                <p>Ihr Browser unterstützt das Anzeigen von PDF-Dateien nicht. <a href="path/to/your/file.pdf">Hier klicken, um das PDF herunterzuladen</a>.</p>
+            </object>
+        </div>
+
+        <!-- Container für den Texteditor (rechts) -->
+        <div id="container-text">
+            <h1>Cheat Sheet Ai</h1>
+            <div>
+                <button onclick="addHeading()">Überschrift</button>
+                <button onclick="addBold()">Fett</button>
+                <button onclick="addLatex()">LaTeX</button>
+            </div>
+            <div id="output" style="margin-top: 10px;"></div>
+            <textarea id="inputText" placeholder="Schreib hier..."></textarea>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

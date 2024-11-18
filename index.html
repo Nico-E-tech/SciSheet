@@ -6,10 +6,9 @@
     <script src="https://kit.fontawesome.com/965872acc7.js" crossorigin="anonymous"></script>
     
     <link rel="stylesheet" href="style.css">
-    <!-- MathJax-Bibliothek für LaTeX einbinden -->
-    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <title>SciSheet</title>
 </head>
+
 <body>
     <div class="top-bar">
         <button class="btn" id="prev-page">
@@ -25,6 +24,7 @@
     </div>
     <div id="main-container">   
         <canvas id="pdf-render"></canvas>
+        <canvas id="overlayScreenshot"></canvas>
 
         <!-- Container für den Texteditor (rechts) -->
         <div id="container-text">
@@ -37,7 +37,11 @@
             <textarea id="inputText" placeholder="Schreib hier..."></textarea>
         </div>
     </div>
+    <!--Display Screenshot nach Auswahl ==> später wieder löschen-->
+    <canvas id="screenshotCanvas" width="300" height="200"></canvas>
 
+    <!-- MathJax-Biliothek für LaTeX einbinden -->
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.min.js"></script>
     <script src="script.js"></script>
 </body>

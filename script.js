@@ -68,10 +68,18 @@ let pdfDoc = null,
 
 const scale = 1.5,
     canvas = document.querySelector('#pdf-render'),
-    ctx = canvas.getContext('2d');
+    ctx = canvas.getContext('2d'),
+    overlaycanvas = document.querySelector('#overlayScreenshot'),
+    ctx_overlay = overlaycanvas.getContext('2d');
+
+function matchOverlayToBaseCanvas() {
+    overlaycanvas.width = canvas.width;
+    overlaycanvas.height = canvas.height;
+    overlaycanvas.style.width = canvas.style.width;
+    overlaycanvas.style.height = canvas.style.height;
+}
 
 //Render the page
-
 const renderPage = num => {
     pageIsRendering = true;
     // Get page
@@ -80,13 +88,13 @@ const renderPage = num => {
         const viewport = page.getViewport({scale: scale });
         canvas.height = viewport.height;
         canvas.width = viewport.width;
-
         const renderCtx = {
             canvasContext: ctx,
             viewport
         };
         page.render(renderCtx).promise.then(()=>{
             pageIsRendering = false;
+            matchOverlayToBaseCanvas();
 
             if(pageNumIsPending !== null){
                 renderPage(pageNumIsPending);
@@ -145,3 +153,65 @@ pdfjsLib.getDocument(url).promise.then(pdfDoc_ =>{
 //Button Events
 document.querySelector('#prev-page').addEventListener('click', showPrevPage);
 document.querySelector('#next-page').addEventListener('click', showNextPage);
+
+
+//----Screenshot Funktionalität----//
+//const drawingCanvas = document.getElementById('drawingCanvas');
+const screenshotCanvas = document.getElementById('screenshotCanvas');
+//const ctx_draw = drawingCanvas.getContext('2d');
+const screenshotCtx = screenshotCanvas.getContext('2d');
+
+let isSelecting = false;
+let selectionStart = { x: 0, y: 0 };
+let selectionEnd = { x: 0, y: 0 };
+
+// Bereichsauswahl starten
+overlaycanvas.addEventListener('mousedown', (e) => {
+  isSelecting = true;
+  const rect = canvas.getBoundingClientRect();
+  selectionStart = { x: e.clientX - rect.left, y: e.clientY - rect.top };
+});
+
+// Bereichsauswahl bewegen
+overlaycanvas.addEventListener('mousemove', (e) => {
+  if (!isSelecting) return;
+  const rect = canvas.getBoundingClientRect();
+  selectionEnd = { x: e.clientX - rect.left, y: e.clientY - rect.top };
+  
+  // Auswahlbereich zeichnen
+
+  ctx_overlay.clearRect(0, 0, canvas.width, canvas.height);
+  ctx_overlay.strokeStyle = 'black';
+  ctx_overlay.lineWidth = 2;
+  ctx_overlay.setLineDash([5, 5]);
+  ctx_overlay.strokeRect(
+    selectionStart.x,
+    selectionStart.y,
+    selectionEnd.x - selectionStart.x,
+    selectionEnd.y - selectionStart.y
+  );
+});
+// Bereichsauswahl beenden und Screenshot machen
+overlaycanvas.addEventListener('mouseup', () => {
+  if (!isSelecting) return;
+  isSelecting = false;
+
+  const x = Math.min(selectionStart.x, selectionEnd.x);
+  const y = Math.min(selectionStart.y, selectionEnd.y);
+  const width = Math.abs(selectionEnd.x - selectionStart.x);
+  const height = Math.abs(selectionEnd.y - selectionStart.y);
+
+  if (width === 0 || height === 0) {
+    alert('Bitte einen gültigen Bereich auswählen!');
+    return;
+  }
+
+  const imageData = ctx.getImageData(x, y, width, height);
+  screenshotCanvas.width = width;
+  screenshotCanvas.height = height;
+  screenshotCtx.putImageData(imageData, 0, 0);
+
+  // Zeichne den Auswahlrahmen zurück, um die ursprüngliche Anzeige zu erhalten
+  ctx.setLineDash([]);
+});
+

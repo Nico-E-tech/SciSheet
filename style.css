@@ -107,6 +107,14 @@ object {
     font-weight: bold; /* Macht den Text fett */
     font-size: 1.5rem; /* Schriftgröße anpassen */
 }
+
+#pdf-render{
+    position: absolute;
+}
+#overlayScreenshot{
+    position: relative;
+}
+
 .error{
     background: orangered;
     color:white;

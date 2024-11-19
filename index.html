@@ -1,40 +1,41 @@
 <!DOCTYPE html>
 <html lang="de">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://kit.fontawesome.com/965872acc7.js" crossorigin="anonymous"></script>
-    
+    <!--Katex für Latex Formeln-->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex/dist/katex.min.css">
+
     <link rel="stylesheet" href="style.css">
     <title>SciSheet</title>
 </head>
 
 <body>
-    <div class="top-bar">
-        <button class="btn" id="prev-page">
-            <i class="fa-solid fa-circle-arrow-left"></i> Prev Page
-        </button>
-        <button class="btn" id="next-page">
-            Next Page <i class="fa-solid fa-circle-arrow-right"></i> 
-        </button>
-        <span class="page-info">
-            Page <span id="page-num"></span> of <span id="page-count"></span>
-        </span>
-        <span id="title-top-bar">SciSheet</span>
-    </div>
-    <div id="main-container">   
-        <canvas id="pdf-render"></canvas>
-        <canvas id="overlayScreenshot"></canvas>
-
-        <!-- Container für den Texteditor (rechts) -->
-        <div id="container-text">
-            <div>
-                <button onclick="addHeading()">Überschrift</button>
-                <button onclick="addBold()">Fett</button>
-                <button onclick="addLatex()">LaTeX</button>
+    <div class="grid-container-top" id="top-bar-grid">
+        <div class="grid-item">
+            <div class="top-bar">
+                <button class="btn" id="prev-page">
+                    <i class="fa-solid fa-circle-arrow-left"></i> Prev Page
+                </button>
+                <button class="btn" id="next-page">
+                    Next Page <i class="fa-solid fa-circle-arrow-right"></i>
+                </button>
+                <span class="page-info">
+                    Page <span id="page-num"></span> of <span id="page-count"></span>
+                </span>
+                <span id="title-top-bar">SciSheet</span>
             </div>
-            <div id="output" style="margin-top: 10px;"></div>
-            <textarea id="inputText" placeholder="Schreib hier..."></textarea>
+        </div>
+    </div>
+    <div class="grid-container" id="main-container">
+        <div class="grid-item">
+            <canvas id="pdf-render"></canvas>
+            <canvas id="overlayScreenshot"></canvas>
+        </div>
+        <div class="grid-item">
+            <div id="editor"></div>
         </div>
     </div>
     <!--Display Screenshot nach Auswahl ==> später wieder löschen-->
@@ -43,6 +44,22 @@
     <!-- MathJax-Biliothek für LaTeX einbinden -->
     <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.min.js"></script>
+    <!--Editor Js Bibs einbinden-->
+    <!-- Editor.js -->
+    <script src="https://cdn.jsdelivr.net/npm/@editorjs/editorjs@latest"></script>
+    <!-- Paragraph Tool -->
+    <script src="https://cdn.jsdelivr.net/npm/@editorjs/paragraph@latest"></script>
+    <!-- Drag-and-Drop Plugin -->
+    <script src="https://cdn.jsdelivr.net/npm/editorjs-drag-drop@latest"></script>
+    <!-- KaTeX -->
+    <script src="https://cdn.jsdelivr.net/npm/katex/dist/katex.min.js"></script>
+    <!-- Headline -->
+    <script src="https://cdn.jsdelivr.net/npm/@editorjs/header@latest"></script>
+    <!-- Image -->
+    <script src="https://cdn.jsdelivr.net/npm/@editorjs/simple-image"></script>
+    <!-- List -->
+    <script src=" https://cdn.jsdelivr.net/npm/@editorjs/list@2"></script>
     <script src="script.js"></script>
 </body>
+
 </html>

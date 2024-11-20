@@ -17,12 +17,6 @@ object {
     border: none;
 }
 
-/*---Style für PDF Viewer---*/
-*{
-    margin: 0;
-    padding: 0;
-}
-
 .top-bar {
     display: flex;
     background: #333;
@@ -41,6 +35,7 @@ object {
     border: none;
     outline: none;
     cursor: pointer;
+    margin: 0.2rem;
     padding: 0.7rem 2rem;
 }
 
@@ -49,14 +44,13 @@ object {
 }
 
 .page-info{
-    padding: 0.9rem 0.5rem;
+    margin: 1rem;
 }
 
 #title-top-bar {
     position: fixed;
-    top: 0.8rem;   /* 10px vom oberen Rand des Browserfensters */
+    margin: 0.5rem;
     right: 0.5rem; /* 10px vom rechten Rand des Browserfensters */
-
     font-weight: bold; /* Macht den Text fett */
     font-size: 1.5rem; /* Schriftgröße anpassen */
 }
@@ -77,9 +71,9 @@ object {
 /*Style von Editor.js*/
 #editor {
     border: 1px solid #ccc;
-    padding: 10px;
-    border-radius: 5px;
-    min-height: 300px;
+    padding: 0.1rem;
+    border-radius: 1rem;
+    min-height: 20rem;
 }
 
 .latex-block {

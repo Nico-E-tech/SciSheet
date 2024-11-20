@@ -6,12 +6,12 @@ let pdfDoc = null,
     pageNum = 1,
     pageIsRendering = false,
     pageNumIsPending = null;
-    PDFViewportWidth = 0;
+PDFViewportWidth = 0;
 
 const scale = 1.5,
     canvas = document.querySelector('#pdf-render'),
     ctx = canvas.getContext('2d'),
-    overlaycanvas = document.querySelector('#overlayScreenshot'),
+    overlaycanvas = document.querySelector('#overlayScreenshot'), //Overlaycanvas auf dem der Gestrichelte Auswahlrahmen gezeichnet wird
     ctx_overlay = overlaycanvas.getContext('2d');
 
 function matchOverlayToBaseCanvas() {
@@ -20,25 +20,34 @@ function matchOverlayToBaseCanvas() {
     overlaycanvas.style.width = canvas.style.width;
     overlaycanvas.style.height = canvas.style.height;
 }
+//1. Get Document
+pdfjsLib.getDocument(url).promise.then(pdfDoc_ => {
+    pdfDoc = pdfDoc_;   //Mache PDF Objekt Global indem die Lokale Variable pdfDoc_ pdfDoc zugewiesen wird
+    document.querySelector('#page-count').textContent = pdfDoc.numPages;
+    renderPage(pageNum);
+}).catch(err => {
+    //Display Error
+    alert('PDF nicht gefunden!');
+});
 
-//Render the page
+//2. Render the page
 const renderPage = num => {
     pageIsRendering = true;
     // Get page
-    pdfDoc.getPage(num).then(page =>{
+    pdfDoc.getPage(num).then(page => {
         //Set scale
-        const viewport = page.getViewport({scale: scale });
+        const viewport = page.getViewport({ scale: scale });
         canvas.height = viewport.height;
         canvas.width = viewport.width;
         const renderCtx = {
             canvasContext: ctx,
             viewport
         };
-        page.render(renderCtx).promise.then(()=>{
+        page.render(renderCtx).promise.then(() => {
             pageIsRendering = false;
             matchOverlayToBaseCanvas();
 
-            if(pageNumIsPending !== null){
+            if (pageNumIsPending !== null) {
                 renderPage(pageNumIsPending);
                 pageNumIsPending = null;
             };
@@ -51,16 +60,16 @@ const renderPage = num => {
 
 // Check for pages rendering
 const queueRenderPage = num => {
-    if(pageIsRendering){
+    if (pageIsRendering) {
         pageNumIsPending = num;
-    }else{
+    } else {
         renderPage(num)
     }
 }
 
 //Show Prev Page
-const showPrevPage = () =>{
-    if(pageNum<=1){
+const showPrevPage = () => {
+    if (pageNum <= 1) {
         return;
     }
     pageNum--;
@@ -68,40 +77,20 @@ const showPrevPage = () =>{
 }
 
 //Show Next Page
-const showNextPage = () =>{
-    if(pageNum>=pdfDoc.numPages){
+const showNextPage = () => {
+    if (pageNum >= pdfDoc.numPages) {
         return;
     }
     pageNum++;
     queueRenderPage(pageNum);
 }
-
-//Get Document
-pdfjsLib.getDocument(url).promise.then(pdfDoc_ =>{
-    pdfDoc = pdfDoc_;
-    console.log(pdfDoc);
-    
-    document.querySelector('#page-count').textContent = pdfDoc.numPages;
-
-    renderPage(pageNum)
-}).catch(err=>{
-    //Display Error
-    const div = document.createElement('div');
-    div.className = 'error';
-    div.appendChild(document.createTextNode(err.message));
-    document.querySelector('body').insertBefore(div, canvas);
-    //Remove Top Bar
-    document.querySelector('.top-bar').style.display = 'none';
-});
 //Button Events
 document.querySelector('#prev-page').addEventListener('click', showPrevPage);
 document.querySelector('#next-page').addEventListener('click', showNextPage);
 
 
 //----Screenshot Funktionalität----//
-//const drawingCanvas = document.getElementById('drawingCanvas');
 const screenshotCanvas = document.getElementById('screenshotCanvas');
-//const ctx_draw = drawingCanvas.getContext('2d');
 const screenshotCtx = screenshotCanvas.getContext('2d');
 
 let isSelecting = false;
@@ -110,51 +99,51 @@ let selectionEnd = { x: 0, y: 0 };
 
 // Bereichsauswahl starten
 overlaycanvas.addEventListener('mousedown', (e) => {
-  isSelecting = true;
-  const rect = canvas.getBoundingClientRect();
-  selectionStart = { x: e.clientX - rect.left, y: e.clientY - rect.top };
+    isSelecting = true;
+    const rect = canvas.getBoundingClientRect();
+    selectionStart = { x: e.clientX - rect.left, y: e.clientY - rect.top };
 });
 
 // Bereichsauswahl bewegen
 overlaycanvas.addEventListener('mousemove', (e) => {
-  if (!isSelecting) return;
-  const rect = canvas.getBoundingClientRect();
-  selectionEnd = { x: e.clientX - rect.left, y: e.clientY - rect.top };
-  
-  // Auswahlbereich zeichnen
-  ctx_overlay.clearRect(0, 0, canvas.width, canvas.height);
-  ctx_overlay.strokeStyle = 'black';
-  ctx_overlay.lineWidth = 2;
-  ctx_overlay.setLineDash([5, 5]);
-  ctx_overlay.strokeRect(
-    selectionStart.x,
-    selectionStart.y,
-    selectionEnd.x - selectionStart.x,
-    selectionEnd.y - selectionStart.y
-  );
+    if (!isSelecting) return;
+    const rect = canvas.getBoundingClientRect();
+    selectionEnd = { x: e.clientX - rect.left, y: e.clientY - rect.top };
+
+    // Auswahlbereich zeichnen
+    ctx_overlay.clearRect(0, 0, canvas.width, canvas.height);
+    ctx_overlay.strokeStyle = 'black';
+    ctx_overlay.lineWidth = 2;
+    ctx_overlay.setLineDash([5, 5]);
+    ctx_overlay.strokeRect(
+        selectionStart.x,
+        selectionStart.y,
+        selectionEnd.x - selectionStart.x,
+        selectionEnd.y - selectionStart.y
+    );
 });
 // Bereichsauswahl beenden und Screenshot machen
 overlaycanvas.addEventListener('mouseup', () => {
-  if (!isSelecting) return;
-  isSelecting = false;
-  ctx_overlay.clearRect(0, 0, canvas.width, canvas.height);
-  const x = Math.min(selectionStart.x, selectionEnd.x);
-  const y = Math.min(selectionStart.y, selectionEnd.y);
-  const width = Math.abs(selectionEnd.x - selectionStart.x);
-  const height = Math.abs(selectionEnd.y - selectionStart.y);
+    if (!isSelecting) return;
+    isSelecting = false;
+    ctx_overlay.clearRect(0, 0, canvas.width, canvas.height);
+    const x = Math.min(selectionStart.x, selectionEnd.x);
+    const y = Math.min(selectionStart.y, selectionEnd.y);
+    const width = Math.abs(selectionEnd.x - selectionStart.x);
+    const height = Math.abs(selectionEnd.y - selectionStart.y);
 
-  if (width === 0 || height === 0) {
-    alert('Bitte einen gültigen Bereich auswählen!');
-    return;
-  }
+    if (width === 0 || height === 0) {
+        alert('Bitte einen gültigen Bereich auswählen!');
+        return;
+    }
 
-  const imageData = ctx.getImageData(x, y, width, height);
-  screenshotCanvas.width = width;
-  screenshotCanvas.height = height;
-  screenshotCtx.putImageData(imageData, 0, 0);
-
-  // Zeichne den Auswahlrahmen zurück, um die ursprüngliche Anzeige zu erhalten
-  ctx.setLineDash([]);
+    const imageData = ctx.getImageData(x, y, width, height);
+    screenshotCanvas.width = width;
+    screenshotCanvas.height = height;
+    screenshotCtx.putImageData(imageData, 0, 0);
+    const screenshotIMG_URL = screenshotCanvas.toDataURL();      //NEU!
+    // Aktualisiere den Editor-Inhalt mit dem Canvas-Bild
+    exportCanvasImage(screenshotCanvas);
 });
 
 //---Code für Editor.js---//
@@ -233,16 +222,40 @@ class LaTeXBlock {
     }
 }
 
+// Definiere den CustomBlock für das Canvas-Bild ohne Toolbox-Eintrag
+class CanvasImageBlock {
+    constructor({ data }) {
+        this.data = data;
+    }
 
-// Editor Initialization 
+    render() {
+        const container = document.createElement('div');
+        const img = document.createElement('img');
+        img.src = this.data.url || '';
+        container.appendChild(img);
+        return container;
+    }
+
+    save(blockContent) {
+        const img = blockContent.querySelector('img');
+        return {
+            url: img.src,
+        };
+    }
+}
+
+// Editor Initialization
 document.addEventListener('DOMContentLoaded', () => {
     const editor = new EditorJS({
         holder: 'editor',
         tools: {
-
             latex: LaTeXBlock,
             header: Header,
-            image: SimpleImage,
+            // Definiere canvasImage, aber ohne Toolbox-Eintrag
+            canvasImage: {
+                class: CanvasImageBlock,
+                // Keine toolbox-Eigenschaft bedeutet, dass es nicht in der Toolbox angezeigt wird
+            },
             list: {
                 class: EditorjsList,
                 inlineToolbar: true,
@@ -259,4 +272,19 @@ document.addEventListener('DOMContentLoaded', () => {
             new DragDrop(editor);
         },
     });
+
+    // Beispiel-Funktion, um ein Bild von einem Canvas zu exportieren
+    window.exportCanvasImage = function(canvas) {
+        // Exportiere das Canvas als Bild
+        const dataURL = canvas.toDataURL();
+        
+        editor.isReady.then(() => {
+            // Der CanvasImage-Block kann hier programmgesteuert eingefügt werden
+            editor.blocks.insert('canvasImage', {
+                url: dataURL
+            });
+        }).catch((reason) => {
+            console.error(`Editor.js init failed: ${reason}`);
+        });
+    };
 });

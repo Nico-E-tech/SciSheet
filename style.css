@@ -74,11 +74,13 @@ object {
     padding: 0.1rem;
     border-radius: 1rem;
     min-height: 20rem;
+    font-size: 1.2em;
 }
 
 .latex-block {
     position: relative;
     margin-bottom: 20px;
+    font-size: 1.1em;
 }
 
 .latex-input {

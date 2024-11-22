@@ -1,4 +1,3 @@
-
 //-----JavaScript für PDF Viewer-----//
 const url = 'PDF.pdf';
 
@@ -88,7 +87,6 @@ const showNextPage = () => {
 document.querySelector('#prev-page').addEventListener('click', showPrevPage);
 document.querySelector('#next-page').addEventListener('click', showNextPage);
 
-
 //----Screenshot Funktionalität----//
 const screenshotCanvas = document.getElementById('screenshotCanvas');
 const screenshotCtx = screenshotCanvas.getContext('2d');
@@ -141,13 +139,24 @@ overlaycanvas.addEventListener('mouseup', () => {
     screenshotCanvas.width = width;
     screenshotCanvas.height = height;
     screenshotCtx.putImageData(imageData, 0, 0);
-    const screenshotIMG_URL = screenshotCanvas.toDataURL();      //NEU!
     // Aktualisiere den Editor-Inhalt mit dem Canvas-Bild
     exportCanvasImage(screenshotCanvas);
+    //Convertiere Canvas2Latex Code
+    LatexCode_Promise = Canvas2Latex(screenshotCanvas);
+    if (LatexCode_Promise instanceof Promise) {
+        LatexCode_Promise.then((LatexCode) => {
+            console.log("LaTeX code:", LatexCode);
+            // Jetzt können Sie den resultierenden String verwenden
+            // result enthält den Wert: "\\operatorname{rot}{\\vec{e}}"
+            LatexCode2Editor(LatexCode);
+        }).catch((error) => {
+            console.error("Fehler beim Abrufen des LaTeX-Codes:", error);
+        });
+    } else {
+        console.error("LatexCode ist kein Promise.");
+    }
 });
 
-//---Code für Editor.js---//
-// LaTeX Plugin 
 class LaTeXBlock {
     static get toolbox() {
         return {
@@ -205,14 +214,13 @@ class LaTeXBlock {
     }
 
     renderRenderedOutput() {
-        try {
-            this.renderedOutput.innerHTML = katex.renderToString(this.data.latex, {
-                throwOnError: false,
-                displayMode: true,
-            });
-        } catch (error) {
-            this.renderedOutput.innerHTML = `<span style="color: red;">${error.message}</span>`;
-        }
+        let content = this.data.latex;
+        this.renderedOutput.innerHTML = `\\[${content}\\]`;
+        // Use MathJax to typeset the content
+        MathJax.typesetPromise([this.renderedOutput]).catch((err) => {
+            console.error('MathJax typesetting error:', err.message);
+            this.renderedOutput.innerHTML = `<span style="color: red;">${err.message}</span>`;
+        });
     }
 
     save() {
@@ -274,10 +282,10 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // Beispiel-Funktion, um ein Bild von einem Canvas zu exportieren
-    window.exportCanvasImage = function(canvas) {
+    window.exportCanvasImage = function (canvas) {
         // Exportiere das Canvas als Bild
         const dataURL = canvas.toDataURL();
-        
+
         editor.isReady.then(() => {
             // Der CanvasImage-Block kann hier programmgesteuert eingefügt werden
             editor.blocks.insert('canvasImage', {
@@ -287,4 +295,64 @@ document.addEventListener('DOMContentLoaded', () => {
             console.error(`Editor.js init failed: ${reason}`);
         });
     };
+    window.LatexCode2Editor = function (LatexCode) {
+        editor.isReady.then(() => {
+            // Assuming editor is an instance of EditorJS
+            editor.blocks.insert('latex', {
+                latex: LatexCode
+            });
+        }).catch(() => {
+            console.error(`Editor.js init failed.`);
+        });
+    };
 });
+
+//----Hier Canvas to Latex Funktionalität----//
+const latexDiv = document.getElementById('latex');
+async function Canvas2Latex(canvas) {
+    // Überprüfen, ob das Canvas existiert
+    if (!canvas) {
+        console.error("Canvas-Element ist nicht definiert.");
+        return;
+    }
+
+    // Konvertiere das Canvas zu einem Blob
+    const imageBlob = await new Promise((resolve) => {
+        canvas.toBlob((blob) => resolve(blob), "image/png");
+    });
+
+    if (!imageBlob) {
+        console.error("Fehler beim Konvertieren des Canvas zu einem Blob.");
+        return;
+    }
+
+    // Erstelle das FormData-Objekt für die Anfrage
+    const formData = new FormData();
+    formData.append("image", imageBlob, "formula.png");
+
+    try {
+        // Sende das Bild an das Backend
+        const response = await fetch("http://127.0.0.1:5000/convert", {
+            method: "POST",
+            body: formData,
+        });
+
+        // Überprüfe die Antwort
+        if (!response.ok) {
+            throw new Error(`HTTP-Fehler: ${response.status}`);
+        }
+
+        const data = await response.json();
+
+        // Gibt den LaTeX-Code zurück
+        if (data.latex) {
+            return data.latex;
+        } else {
+            console.error("Fehler beim Umwandeln:", data.error || "Unbekannter Fehler");
+        }
+    } catch (error) {
+        console.error("Anfrage fehlgeschlagen:", error.message);
+    }
+}
+
+

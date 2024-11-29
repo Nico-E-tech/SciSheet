@@ -87,6 +87,21 @@ const showNextPage = () => {
 document.querySelector('#prev-page').addEventListener('click', showPrevPage);
 document.querySelector('#next-page').addEventListener('click', showNextPage);
 
+//----Auswahl zwischen Bild und Latex Snipped----//
+togglePixMathSwitch = "math";
+document.addEventListener('DOMContentLoaded', function () {
+
+    // Handle switch toggle
+    const toggleSwitch = document.getElementById('toggle-switch');
+    toggleSwitch.addEventListener('change', function () {
+        if (toggleSwitch.checked) {
+            togglePixMathSwitch = "pix";
+        } else {
+            togglePixMathSwitch = "math";
+        }
+    });
+});
+
 //----Screenshot Funktionalität----//
 const screenshotCanvas = document.getElementById('screenshotCanvas');
 const screenshotCtx = screenshotCanvas.getContext('2d');
@@ -140,20 +155,24 @@ overlaycanvas.addEventListener('mouseup', () => {
     screenshotCanvas.height = height;
     screenshotCtx.putImageData(imageData, 0, 0);
     // Aktualisiere den Editor-Inhalt mit dem Canvas-Bild
-    exportCanvasImage(screenshotCanvas);
+    if (togglePixMathSwitch === "pix") {
+        exportCanvasImage(screenshotCanvas);
+    }
     //Convertiere Canvas2Latex Code
-    LatexCode_Promise = Canvas2Latex(screenshotCanvas);
-    if (LatexCode_Promise instanceof Promise) {
-        LatexCode_Promise.then((LatexCode) => {
-            console.log("LaTeX code:", LatexCode);
-            // Jetzt können Sie den resultierenden String verwenden
-            // result enthält den Wert: "\\operatorname{rot}{\\vec{e}}"
-            LatexCode2Editor(LatexCode);
-        }).catch((error) => {
-            console.error("Fehler beim Abrufen des LaTeX-Codes:", error);
-        });
-    } else {
-        console.error("LatexCode ist kein Promise.");
+    if (togglePixMathSwitch === "math") {
+        LatexCode_Promise = Canvas2Latex(screenshotCanvas);
+        if (LatexCode_Promise instanceof Promise) {
+            LatexCode_Promise.then((LatexCode) => {
+                console.log("LaTeX code:", LatexCode);
+                // Jetzt können Sie den resultierenden String verwenden
+                // result enthält den Wert: "\\operatorname{rot}{\\vec{e}}"
+                LatexCode2Editor(LatexCode);
+            }).catch((error) => {
+                console.error("Fehler beim Abrufen des LaTeX-Codes:", error);
+            });
+        } else {
+            console.error("LatexCode ist kein Promise.");
+        }
     }
 });
 
@@ -253,6 +272,7 @@ class CanvasImageBlock {
 }
 
 // Editor Initialization
+let global_editor = null;
 document.addEventListener('DOMContentLoaded', () => {
     const editor = new EditorJS({
         holder: 'editor',
@@ -280,6 +300,7 @@ document.addEventListener('DOMContentLoaded', () => {
             new DragDrop(editor);
         },
     });
+    global_editor = editor;
 
     // Beispiel-Funktion, um ein Bild von einem Canvas zu exportieren
     window.exportCanvasImage = function (canvas) {
@@ -355,4 +376,100 @@ async function Canvas2Latex(canvas) {
     }
 }
 
+//ToDo
+//Erstelle Funktion um editor inhalt als pdf zu exportieren
+function exportPDF() {
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF();
 
+    global_editor.save().then((outputData) => {
+        let yOffset = 20; // Initial Y offset
+        const promises = [];
+
+        outputData.blocks.forEach((block) => {
+            if (block.text === "") {
+                block.text = " ";
+            }
+
+            /*
+            if (!block.data || (!block.data.text && !block.data.latex)) {
+                console.error(`Block «${block.type}» skipped because saved data is invalid:`, block.data);
+                return;
+            }*/
+
+            if (block.type === "header") {
+                pdf.setFontSize(40);
+                pdf.text(block.data.text, 10, yOffset);
+                yOffset += 20; // Adjust Y offset for next block
+            } else if (block.type === "paragraph") {
+                pdf.setFontSize(12);
+                pdf.text(block.data.text, 10, yOffset);
+                yOffset += 10; // Adjust Y offset for next block
+            } else if (block.type === "list") {
+                const list = block.data.style === "unordered" ? "ul" : "ol";
+                block.data.items.forEach((item) => {
+                    pdf.setFontSize(12);
+                    pdf.text(`• ${item.content}`, 10, yOffset);
+                    yOffset += 10; // Adjust Y offset for next item
+                });
+            } else if (block.type === "latex") {
+                const latexContent = block.data.latex;
+                console.log("LaTeX content:", latexContent);
+                if (!latexContent) {
+                    console.error(`Block «${block.type}» skipped because saved data is invalid:`, block.data);
+                    return;
+                }
+
+                const latexContainer = document.createElement('div');
+                latexContainer.style.display = 'inline-block';
+                latexContainer.innerHTML = `(\\(${latexContent}\\)`;
+                document.body.appendChild(latexContainer);
+                // Save the original MathJax configuration
+                const originalConfig = window.MathJax.config;
+
+                // Temporarily set MathJax to use the SVG output processor
+                window.MathJax = {
+                    ...originalConfig,
+                    svg: {
+                        fontCache: 'global'
+                    },
+                    options: {
+                        renderActions: {
+                            addMenu: []
+                        }
+                    }
+                };
+                // ToDo: MathJax docu lesen
+                // Convert LaTeX to SVG
+                const svg = MathJax.tex2svg(latexContent, { display: false });
+                if (svg) {
+                    svg2pdf(svg, pdf, {
+                        xOffset: 10,
+                        yOffset: yOffset,
+                        scale: 1
+                    });
+                    yOffset += svg.getBoundingClientRect().height * 0.264583; // Convert px to mm
+                } else {
+                    console.error("SVG not found after converting LaTeX.");
+                }
+
+                // Restore the original MathJax configuration
+                window.MathJax = originalConfig;
+            }
+        });
+
+        Promise.all(promises).then(() => {
+            pdf.save('editor_content.pdf');
+        }).catch(error => {
+            console.error("Error processing LaTeX blocks:", error);
+        });
+    }).catch(error => {
+        console.error("Error saving editor content:", error);
+    });
+}
+
+document.addEventListener('DOMContentLoaded', function () {
+    document.getElementById('export-pdf').addEventListener('click', exportPDF);
+});
+
+//----

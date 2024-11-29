@@ -22,9 +22,21 @@
                 <button class="btn" id="next-page">
                     Next Page <i class="fa-solid fa-circle-arrow-right"></i>
                 </button>
+                <button class="btn" id="export-pdf">
+                    <i class="fa-solid fa-file-pdf"></i> Export PDF
+                </button>
                 <span class="page-info">
                     Page <span id="page-num"></span> of <span id="page-count"></span>
                 </span>
+                <!-- Slide Switch with Emojis -->
+                <div class="switch-container">
+                    <i class="fa-solid fa-square-root-alt"></i>
+                    <label class="switch">
+                        <input type="checkbox" id="toggle-switch">
+                        <span class="slider round"></span>
+                    </label>  
+                    <i class="fa-solid fa-image"></i>
+                </div>
                 <span id="title-top-bar">SciSheet</span>
             </div>
         </div>
@@ -57,6 +69,13 @@
     <script src="https://cdn.jsdelivr.net/npm/@editorjs/simple-image"></script>
     <!-- List -->
     <script src=" https://cdn.jsdelivr.net/npm/@editorjs/list@2"></script>
+    <!--Pdf Library cdn-->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <!--Autotable für PDF export-->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.13/jspdf.plugin.autotable.min.js"></script>
+    <!-- svg2pdf Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/svg2pdf.js/2.0.0/svg2pdf.min.js"></script>
+
     <script src="script.js"></script>
 </body>
 

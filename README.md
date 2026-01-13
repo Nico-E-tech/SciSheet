@@ -5,7 +5,7 @@
 > [!WARNING]
 > **Projektstatus:** Dies ist ein **Prototyp** (Proof of Concept).
 
-![SciSheet AI Showcase](Bilder/SciSheet_Showcase.drawio.png)
+![SciSheet Showcase](Bilder/SciSheet_Showcase.drawio.png)
 
 ## Features
 * **KI-gestützte OCR:** Präzise Erkennung komplexer mathematischer Strukturen (Brüche, Integrale, ...).
@@ -19,7 +19,7 @@ Der Kern der Formelerkennung basiert auf dem Open-Source-Modell von:
 
 ## Installation & Setup
 
-Folge diesen Schritten, um SciSheet AI lokal zu starten:
+Folge diesen Schritten, um SciSheet lokal zu starten:
 
 1. installiere venv
 2. aktiviere venv

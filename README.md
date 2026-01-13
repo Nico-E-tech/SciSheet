@@ -1,6 +1,6 @@
 # SciSheet🚀
 
-**SciSheet** ist ein Tool zur intelligenten Erfassung mathematischer Formeln aus Dokumenten. Es wandelt Bildschirminhalte (z. B. aus Vorlesungsskripten, Paper, PDFs) direkt in editierbaren LaTeX-Code um und ermöglicht so den schnellen Aufbau digitaler Formelsammlungen.
+**SciSheet** ist ein Tool zur intelligenten Erfassung mathematischer Formeln aus Dokumenten. Es wandelt Bildschirminhalte (z. B. aus Vorlesungsskripten, Paper, PDFs, ..) direkt in editierbaren LaTeX-Code um und ermöglicht so den schnellen Aufbau digitaler Formelsammlungen.
 
 > [!WARNING]
 > **Projektstatus:** Dies ist ein **Prototyp** (Proof of Concept).

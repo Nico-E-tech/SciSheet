@@ -1,6 +1,6 @@
 # SciSheet🚀
 
-**SciSheet** ist ein Tool zur intelligenten Erfassung mathematischer Formeln aus Dokumenten. Es wandelt Bildschirminhalte (z. B. aus Vorlesungsskripten oder PDFs) direkt in editierbaren LaTeX-Code um und ermöglicht so den schnellen Aufbau digitaler Formelsammlungen.
+**SciSheet** ist ein Tool zur intelligenten Erfassung mathematischer Formeln aus Dokumenten. Es wandelt Bildschirminhalte (z. B. aus Vorlesungsskripten, Paper, PDFs) direkt in editierbaren LaTeX-Code um und ermöglicht so den schnellen Aufbau digitaler Formelsammlungen.
 
 > [!WARNING]
 > **Projektstatus:** Dies ist ein **Prototyp** (Proof of Concept).
@@ -21,29 +21,11 @@ Der Kern der Formelerkennung basiert auf dem Open-Source-Modell von:
 
 Folge diesen Schritten, um SciSheet AI lokal zu starten:
 
-### 1. Repository klonen
-```bash
-git clone [https://github.com/Nico-E-tech/SciSheet.git](https://github.com/Nico-E-tech/SciSheet.git)
-cd SciSheet
-2. Virtuelle Umgebung (venv) einrichten
-Bash
+1. installiere venv
+2. aktiviere venv
+3. installiere alle requirements
+4. python app.py
+5. Starte Live Server von index.html (VSC Extension)
 
-# Umgebung erstellen
-python -m venv venv
-
-# Umgebung aktivieren
-# Windows:
-.\venv\Scripts\activate
-# Mac/Linux:
-source venv/bin/activate
-3. Abhängigkeiten installieren
-Bash
-
-pip install -r requirements.txt
-4. Anwendung starten
-Backend: Starte den Python-Server mit python app.py.
-
-Frontend: Öffne die index.html in deinem Browser (empfohlen: VS Code Extension "Live Server" für korrekte Pfad-Verarbeitung).
-
-Bekannte Probleme (Known Issues)
+## Bekannte Probleme (Known Issues)
 PDF-Export: Die Funktion zum Exportieren der fertigen Sammlung als PDF befindet sich noch in der Entwicklung. Aktuell kann es zu Formatierungsproblemen kommen.
